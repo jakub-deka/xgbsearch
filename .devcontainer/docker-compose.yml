@@ -1,0 +1,15 @@
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/python:3
+    env_file: ../.devcontainer/devcontainer.env
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    stop_grace_period: 1s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

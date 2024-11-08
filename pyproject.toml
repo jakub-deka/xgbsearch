@@ -1,0 +1,32 @@
+[project]
+name = "xgbsearch"
+version = "0.1.3"
+description = "An implementation of grid search, random search for XGBoost with eval_set and early stopping support."
+authors = [{name = "Jakub Deka", email = "jakub.deka@gmail.com"}]
+license = {file = "LICENSE.md"}
+readme = "README.md"
+keywords = ["xgboost"]
+
+requires-python = ">=3.6"
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "xgboost",
+    "colorama",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/jakub-deka/xgbsearch"
+"Source" = "https://github.com/jakub-deka/xgbsearch"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
