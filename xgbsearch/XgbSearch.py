@@ -105,10 +105,8 @@ class XgbSearch:
         self.results = []
 
         for index, p in enumerate(param_list):
-            print(
-                f"🟨🟨🟨🟨🟨🟨🟨      🏃‍♂️‍➡️{Fore.BLACK}Running iteration {index}.{Style.RESET_ALL}       🟨🟨🟨🟨🟨🟨🟨"
-            )
-            print(p)
+            print(f"\n🟨    🏃‍♂️‍➡️ Running iteration {index}.   🟨\n")
+            print(f"{p}\n")
 
             individual_result = {}
 
@@ -388,5 +386,5 @@ class XgbRandomSearch(XgbSearch):
                         )
                 else:
                     loop_res[k] = v
-            res.append(loop_res)
+            res.append(loop_res | self.fit_params)
         return res
