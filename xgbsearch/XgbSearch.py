@@ -376,9 +376,13 @@ class XgbRandomSearch(XgbSearch):
                 if isinstance(v, list):
                     loop_res[k] = random.choice(v)
                 elif isinstance(v, tuple):
-                    if isinstance(v[0], float):
+                    if len(v) != 2:
+                        raise ValueError(
+                            f"Only tuples of length 2 are supported for random search. Check {k} in your configuration."
+                        )
+                    elif isinstance(v[0], float) or isinstance(v[1], float):
                         loop_res[k] = random.uniform(*v)
-                    elif isinstance(v[0], int):
+                    elif isinstance(v[0], int) or isinstance(v[1], int):
                         loop_res[k] = random.randint(*v)
                     else:
                         raise ValueError(

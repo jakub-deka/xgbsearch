@@ -1,6 +1,6 @@
 [project]
 name = "xgbsearch"
-version = "0.1.4"
+version = "0.1.5"
 description = "An implementation of grid search, random search for XGBoost with eval_set and early stopping support."
 authors = [{name = "Jakub Deka", email = "jakub.deka@gmail.com"}]
 license = {file = "LICENSE.md"}
