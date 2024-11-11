@@ -1,3 +1,5 @@
+# TODO: implement a class for the results of XgbSearch and do the plotting and df as methods of THAT class.
+
 from typing import Dict, Any
 import pandas as pd
 import numpy as np
@@ -6,6 +8,8 @@ from xgboost.data import DMatrix
 from colorama import Fore, Back, Style
 import itertools
 import random
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class XgbSearch:
@@ -263,6 +267,98 @@ class XgbSearch:
         predictions = self.predict(X)
         score = score_func(y, predictions, **kwargs)
         return score
+
+    def model_results_as_df_norm(
+        self,
+        model_results: dict[Any],
+        eval_sets: list[str] | None = None,
+        metrics: list[str] | None = None,
+    ) -> pd.DataFrame:
+        best_step = model_results["best_iteration"]
+        model_training_results = model_results["model_training_results"]
+        dfs = []
+        for dataset_name, results in model_training_results.items():
+            for metric, values in results.items():
+
+                if eval_sets is None or dataset_name in eval_sets:
+                    if metrics is None or metric in metrics:
+                        inner_df = pd.DataFrame(
+                            {
+                                "dataset_name": dataset_name,
+                                "metric_name": metric,
+                                "step": range(len(values)),
+                                "metric_value": values,
+                            }
+                        )
+                        dfs.append(inner_df)
+
+        res = pd.concat(dfs).assign(
+            is_best=lambda x: np.where(x.step == best_step, 1, 0)
+        )
+
+        return res
+
+    def get_best_model_results_as_df(
+        self, eval_sets: list[str] | None = None, metrics: list[str] | None = None
+    ) -> pd.DataFrame:
+        model_results = self.get_best_model_results()
+        return self.model_results_as_df_norm(model_results, eval_sets, metrics)
+
+    def plot_model_training_performance(
+        self,
+        model_results,
+        eval_sets: list[str] | None = None,
+        metrics: list[str] | None = None,
+    ):
+        df_norm = self.model_results_as_df_norm(model_results, eval_sets, metrics)
+        metrics = df_norm.metric_name.unique()
+        fig, ax = plt.subplots(
+            figsize=(8 * len(metrics), 6), nrows=1, ncols=len(metrics)
+        )
+
+        if len(metrics) == 1:
+            ax = [ax]
+        for i, metric in enumerate(metrics):
+            local_df = df_norm.query(f"metric_name == '{metric}'")
+            sns.lineplot(
+                data=local_df, x="step", y="metric_value", hue="dataset_name", ax=ax[i]
+            )
+            ax[i].axvline(
+                x=local_df.query("is_best == 1").step.min(),
+                color="black",
+                linestyle=":",
+                label="best iteration",
+                alpha=0.3,
+            )
+            ax[i].legend()
+
+            sns.scatterplot(
+                data=local_df.query("is_best == 1"),
+                x="step",
+                y="metric_value",
+                hue="dataset_name",
+                ax=ax[i],
+                s=250,
+                marker="*",
+                legend=False,
+            )
+
+            ax[i].set(
+                title=f"{metric}",
+                xlabel="Model iteration",
+                ylabel=metric,
+            )
+
+        plt.show()
+
+    def plot_best_model_training_performance(
+        self,
+        eval_sets: list[str] | None = None,
+        metrics: list[str] | None = None,
+    ):
+        self.plot_model_training_performance(
+            self.get_best_model_results(), eval_sets, metrics
+        )
 
 
 class XgbGridSearch(XgbSearch):
