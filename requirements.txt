@@ -7,3 +7,4 @@ setuptools
 build
 twine
 singleton_decorator
+pydantic
