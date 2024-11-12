@@ -1,14 +1,18 @@
 [project]
 name = "xgbsearch"
-version = "0.1.5"
+version = "0.1.6"
 description = "An implementation of grid search, random search for XGBoost with eval_set and early stopping support."
-authors = [{name = "Jakub Deka", email = "jakub.deka@gmail.com"}]
-license = {file = "LICENSE.md"}
 readme = "README.md"
-keywords = ["xgboost"]
-
 requires-python = ">=3.6"
+license = {file = "LICENSE.md"}
+keywords = ["xgboost"]
+authors = [{name = "Jakub Deka", email = "jakub.deka@gmail.com"}]
+maintainers = [{name = "Jakub Deka", email = "jakub.deka@gmail.com"}]
+
+
+
 classifiers = [
+    "Development Status :: 3 - Alpha",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -21,12 +25,16 @@ dependencies = [
     "pandas",
     "xgboost",
     "colorama",
+    "matplotlib",
+    "seaborn"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/jakub-deka/xgbsearch"
 "Source" = "https://github.com/jakub-deka/xgbsearch"
+"Bug Reports" = "https://github.com/jakub-deka/xgbsearch/issues"
 
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
