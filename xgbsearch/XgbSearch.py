@@ -6,6 +6,8 @@ from xgboost.data import DMatrix
 from colorama import Fore, Back, Style
 import itertools
 import random
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class XgbSearch:
@@ -85,11 +87,14 @@ class XgbSearch:
 
                 * model: xgb.Booster object
                 * parameters: complete parameters dict passed to xgb.fit()
-                * additional_settings: a dict of additional settings passed to xgb.fit()
+                * num_boost_rounds: Number of rounds XGBoost will be running for.
+                * early_stopping_rounds: Passed directly to xgb.fit()
                 * model_training_results: a complete record of evaluation metrics for each eval set
                 * best_iteration (int): best model iteration; when using early stopping this will be < num_boost_rounds
                 * best_score (float): value of the last evaluation metric on the last eval_set
                 * best_model (xgb.Booster): Model object for the model with best score according to the last eval metric on the last eval set
+
+            The data in the `results` dictionary can be visualised using XgbResultDisplay class in this package.
 
         """
         self._training_dmatrix = self._convert_to_DMatrix(X, y)
@@ -116,18 +121,15 @@ class XgbSearch:
                 evals=self._eval_dmatrix,
                 num_boost_round=num_boost_round,
                 early_stopping_rounds=early_stopping_rounds,
-                verbose_eval=verbose_eval,
                 evals_result=individual_result,
+                verbose_eval=verbose_eval,
             )
 
             loop_res = {
                 "model": booster,
                 "parameters": p,
-                "additional_settings": {
-                    "num_boost_round": num_boost_round,
-                    "verbose_eval": verbose_eval,
-                    "early_stopping_rounds": early_stopping_rounds,
-                },
+                "num_boost_round": num_boost_round,
+                "early_stopping_rounds": early_stopping_rounds,
                 "model_training_results": individual_result,
             }
 
@@ -227,7 +229,7 @@ class XgbSearch:
     def append_prediction_to_df(
         self, X: pd.DataFrame, pred_col: str = "prediction"
     ) -> pd.DataFrame:
-        """Calculate predictions and append it to the data frame being scored.
+        """Calculate predictions for the best model and append it to the data frame being scored.
 
         Args:
             X (pd.DataFrame): Data frame to be scored.

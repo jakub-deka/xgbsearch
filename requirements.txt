@@ -6,4 +6,4 @@ colorama
 setuptools
 build
 twine
-keyring
+singleton_decorator

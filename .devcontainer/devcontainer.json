@@ -48,7 +48,9 @@
 				"usernamehw.errorlens",
 				"gruntfuggly.todo-tree",
 				"ms-python.black-formatter",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"github.vscode-github-actions",
+				"mhutchie.git-graph"
 			]
 		}
 	},
