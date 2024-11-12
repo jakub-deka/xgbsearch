@@ -1,5 +1,3 @@
-# TODO: implement a class for the results of XgbSearch and do the plotting and df as methods of THAT class.
-
 from typing import Dict, Any
 import pandas as pd
 import numpy as np
@@ -89,11 +87,14 @@ class XgbSearch:
 
                 * model: xgb.Booster object
                 * parameters: complete parameters dict passed to xgb.fit()
-                * additional_settings: a dict of additional settings passed to xgb.fit()
+                * num_boost_rounds: Number of rounds XGBoost will be running for.
+                * early_stopping_rounds: Passed directly to xgb.fit()
                 * model_training_results: a complete record of evaluation metrics for each eval set
                 * best_iteration (int): best model iteration; when using early stopping this will be < num_boost_rounds
                 * best_score (float): value of the last evaluation metric on the last eval_set
                 * best_model (xgb.Booster): Model object for the model with best score according to the last eval metric on the last eval set
+
+            The data in the `results` dictionary can be visualised using XgbResultDisplay class in this package.
 
         """
         self._training_dmatrix = self._convert_to_DMatrix(X, y)
@@ -120,18 +121,15 @@ class XgbSearch:
                 evals=self._eval_dmatrix,
                 num_boost_round=num_boost_round,
                 early_stopping_rounds=early_stopping_rounds,
-                verbose_eval=verbose_eval,
                 evals_result=individual_result,
+                verbose_eval=verbose_eval,
             )
 
             loop_res = {
                 "model": booster,
                 "parameters": p,
-                "additional_settings": {
-                    "num_boost_round": num_boost_round,
-                    "verbose_eval": verbose_eval,
-                    "early_stopping_rounds": early_stopping_rounds,
-                },
+                "num_boost_round": num_boost_round,
+                "early_stopping_rounds": early_stopping_rounds,
                 "model_training_results": individual_result,
             }
 
@@ -231,7 +229,7 @@ class XgbSearch:
     def append_prediction_to_df(
         self, X: pd.DataFrame, pred_col: str = "prediction"
     ) -> pd.DataFrame:
-        """Calculate predictions and append it to the data frame being scored.
+        """Calculate predictions for the best model and append it to the data frame being scored.
 
         Args:
             X (pd.DataFrame): Data frame to be scored.
@@ -267,98 +265,6 @@ class XgbSearch:
         predictions = self.predict(X)
         score = score_func(y, predictions, **kwargs)
         return score
-
-    def model_results_as_df_norm(
-        self,
-        model_results: dict[Any],
-        eval_sets: list[str] | None = None,
-        metrics: list[str] | None = None,
-    ) -> pd.DataFrame:
-        best_step = model_results["best_iteration"]
-        model_training_results = model_results["model_training_results"]
-        dfs = []
-        for dataset_name, results in model_training_results.items():
-            for metric, values in results.items():
-
-                if eval_sets is None or dataset_name in eval_sets:
-                    if metrics is None or metric in metrics:
-                        inner_df = pd.DataFrame(
-                            {
-                                "dataset_name": dataset_name,
-                                "metric_name": metric,
-                                "step": range(len(values)),
-                                "metric_value": values,
-                            }
-                        )
-                        dfs.append(inner_df)
-
-        res = pd.concat(dfs).assign(
-            is_best=lambda x: np.where(x.step == best_step, 1, 0)
-        )
-
-        return res
-
-    def get_best_model_results_as_df(
-        self, eval_sets: list[str] | None = None, metrics: list[str] | None = None
-    ) -> pd.DataFrame:
-        model_results = self.get_best_model_results()
-        return self.model_results_as_df_norm(model_results, eval_sets, metrics)
-
-    def plot_model_training_performance(
-        self,
-        model_results,
-        eval_sets: list[str] | None = None,
-        metrics: list[str] | None = None,
-    ):
-        df_norm = self.model_results_as_df_norm(model_results, eval_sets, metrics)
-        metrics = df_norm.metric_name.unique()
-        fig, ax = plt.subplots(
-            figsize=(8 * len(metrics), 6), nrows=1, ncols=len(metrics)
-        )
-
-        if len(metrics) == 1:
-            ax = [ax]
-        for i, metric in enumerate(metrics):
-            local_df = df_norm.query(f"metric_name == '{metric}'")
-            sns.lineplot(
-                data=local_df, x="step", y="metric_value", hue="dataset_name", ax=ax[i]
-            )
-            ax[i].axvline(
-                x=local_df.query("is_best == 1").step.min(),
-                color="black",
-                linestyle=":",
-                label="best iteration",
-                alpha=0.3,
-            )
-            ax[i].legend()
-
-            sns.scatterplot(
-                data=local_df.query("is_best == 1"),
-                x="step",
-                y="metric_value",
-                hue="dataset_name",
-                ax=ax[i],
-                s=250,
-                marker="*",
-                legend=False,
-            )
-
-            ax[i].set(
-                title=f"{metric}",
-                xlabel="Model iteration",
-                ylabel=metric,
-            )
-
-        plt.show()
-
-    def plot_best_model_training_performance(
-        self,
-        eval_sets: list[str] | None = None,
-        metrics: list[str] | None = None,
-    ):
-        self.plot_model_training_performance(
-            self.get_best_model_results(), eval_sets, metrics
-        )
 
 
 class XgbGridSearch(XgbSearch):

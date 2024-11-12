@@ -49,7 +49,8 @@
 				"gruntfuggly.todo-tree",
 				"ms-python.black-formatter",
 				"eamodio.gitlens",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"mhutchie.git-graph"
 			]
 		}
 	},

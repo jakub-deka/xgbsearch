@@ -94,7 +94,7 @@ After fitting, `XgbGridSearch` and `XgbRandomSearch` will populate a `result` li
 ```python
 {'model': <xgboost.core.Booster at 0x7f3b00bcd070>, # actual model object, if early stopping is enabled this will be the LAST model fitted, not the best one
  'parameters': {'eta': 0.05,'colsample_bytree': 0.8,'max_depth': 11,'min_child_weight': 3,'device': 'cuda','objective': 'binary:logistic','eval_metric': ['auc']}, # Parameters passed to xgb.fit
- 'additional_settings': {'num_boost_round': 10000,'verbose_eval': 10,'early_stopping_rounds': 100}, # additional settings passed to xgb.fit
+ 'num_boost_round': 10000,'verbose_eval': 10,'early_stopping_rounds': 100},
  # Results of the model fitting process by boosting round
  'model_training_results': {'TRAIN': OrderedDict([('auc',
                 [0.8943848819579814,
@@ -174,3 +174,9 @@ my_search = MyOwnSearch(tune_params_grid, fit_params, 0.01)
 eval_set = [(X_train, y_train, "train"), (X_test, y_test, "test")]
 my_search.fit(X_train, y_train, eval_set, 10000, 100, verbose_eval=25)
 ```
+
+## Additional classes
+
+This package also contains a supplement class `XgbResultDisplay` which makes accessing results of grid search/random search easier. This class uses static methods.
+
+See [display-demo.ipynb](examples/display-demo.ipynb) for examples.
